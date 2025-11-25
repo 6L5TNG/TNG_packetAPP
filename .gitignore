@@ -1,0 +1,24 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Generated installer
+tng_packet_installer.zip
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Virtual environments
+venv/
+env/
+.env/

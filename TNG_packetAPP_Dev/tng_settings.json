@@ -1,0 +1,10 @@
+{
+    "callsign": "NOCALL",
+    "grid": "PM37",
+    "tracks": 4,
+    "speed": 10,
+    "audio_in": null,
+    "audio_out": null,
+    "theme": "light",
+    "lang": "ko"
+}

@@ -1,4 +1,4 @@
+PyQt6
 numpy
 sounddevice
 scipy
-PyQt5

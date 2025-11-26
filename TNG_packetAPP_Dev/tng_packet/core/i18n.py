@@ -1,23 +1,25 @@
 import json
 import os
-from pathlib import Path
 
-class I18n:
-    def __init__(self, lang_code="en"):
-        self.lang = lang_code
-        self.data = {}
-        self.load_locale(lang_code)
-    
-    def load_locale(self, code):
-        # locales 폴더 위치 찾기
-        path = Path(__file__).parent.parent / "resources" / "locales" / f"{code}.json"
+class Translator:
+    _instance = None
+    _data = {}
+
+    @classmethod
+    def load(cls, lang_code='en'):
+        # Load JSON file from tng_packet/resources/locales
         try:
-            with open(path, "r", encoding="utf-8") as f:
-                self.data = json.load(f)
-        except FileNotFoundError:
-            print(f"[Warn] {code} 언어 파일을 찾을 수 없어 영어를 시도합니다.")
-            if code != "en":
-                self.load_locale("en")
+            # Get the directory of this file (tng_packet/core)
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            # Go up one level to tng_packet, then into resources/locales
+            base_path = os.path.join(os.path.dirname(current_dir), 'resources', 'locales', f'{lang_code}.json')
+            
+            with open(base_path, 'r', encoding='utf-8') as f:
+                cls._data = json.load(f)
+        except Exception as e:
+            print(f"Failed to load locale {lang_code}: {e}")
+            cls._data = {}
 
-    def get(self, key):
-        return self.data.get(key, key)
+    @classmethod
+    def tr(cls, key):
+        return cls._data.get(key, key)

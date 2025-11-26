@@ -1,5 +1,25 @@
 {
-  "app_title": "TNG パケット通信アプリ",
-  "menu_file": "ファイル",
-  "msg_ready": "準備完了"
+    "menu_file": "ファイル",
+    "menu_settings": "設定...",
+    "menu_exit": "終了",
+    "menu_view": "表示",
+    "menu_help": "ヘルプ",
+    "lbl_spectrum": "スペクトラムスコープ",
+    "lbl_waterfall": "ウォーターフォール履歴",
+    "grp_activity": "バンド活動 (Band Activity)",
+    "grp_rx": "受信メッセージ (RX)",
+    "lbl_config": "MPDA 設定:",
+    "lbl_to": "宛先:",
+    "lbl_msg": "メッセージ:",
+    "btn_tx": "送信開始 (TX)",
+    "btn_halt": "送信停止",
+    "tab_gen": "一般",
+    "tab_audio": "オーディオ",
+    "tab_macro": "定型文",
+    "lbl_call": "コールサイン:",
+    "lbl_grid": "グリッドロケーター:",
+    "lbl_theme": "テーマ:",
+    "lbl_lang": "言語:",
+    "lbl_in": "入力デバイス:",
+    "lbl_out": "出力デバイス:"
 }

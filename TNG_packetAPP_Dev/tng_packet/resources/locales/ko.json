@@ -1,5 +1,25 @@
 {
-  "app_title": "TNG 패킷 교신 프로그램",
-  "menu_file": "파일",
-  "msg_ready": "준비됨"
+    "menu_file": "파일",
+    "menu_settings": "설정...",
+    "menu_exit": "종료",
+    "menu_view": "보기",
+    "menu_help": "도움말",
+    "lbl_spectrum": "스펙트럼 스코프",
+    "lbl_waterfall": "워터폴 히스토리",
+    "grp_activity": "대역 활동 (Band Activity)",
+    "grp_rx": "수신 메시지 (RX)",
+    "lbl_config": "MPDA 설정:",
+    "lbl_to": "수신국:",
+    "lbl_msg": "메시지:",
+    "btn_tx": "송신 시작 (TX)",
+    "btn_halt": "송신 중단",
+    "tab_gen": "일반",
+    "tab_audio": "오디오",
+    "tab_macro": "상용구",
+    "lbl_call": "나의 호출부호:",
+    "lbl_grid": "그리드 로케이터:",
+    "lbl_theme": "테마:",
+    "lbl_lang": "언어:",
+    "lbl_in": "입력 장치 (마이크):",
+    "lbl_out": "출력 장치 (스피커):"
 }

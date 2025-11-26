@@ -1,5 +1,25 @@
 {
-  "app_title": "TNG Packet Transceiver",
-  "menu_file": "File",
-  "msg_ready": "Ready"
+    "menu_file": "File",
+    "menu_settings": "Settings...",
+    "menu_exit": "Exit",
+    "menu_view": "View",
+    "menu_help": "Help",
+    "lbl_spectrum": "SPECTRUM SCOPE",
+    "lbl_waterfall": "WATERFALL HISTORY",
+    "grp_activity": "Band Activity",
+    "grp_rx": "RX Frequency",
+    "lbl_config": "MPDA Config:",
+    "lbl_to": "To:",
+    "lbl_msg": "Msg:",
+    "btn_tx": "Enable TX",
+    "btn_halt": "Halt TX",
+    "tab_gen": "General",
+    "tab_audio": "Audio",
+    "tab_macro": "Tx Macros",
+    "lbl_call": "My Callsign:",
+    "lbl_grid": "My Grid:",
+    "lbl_theme": "Theme:",
+    "lbl_lang": "Language:",
+    "lbl_in": "Input Device:",
+    "lbl_out": "Output Device:"
 }

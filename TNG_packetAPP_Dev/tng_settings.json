@@ -1,10 +1,18 @@
 {
-    "callsign": "NOCALL",
+    "callsign": "6L5TNG",
     "grid": "PM37",
     "tracks": 4,
     "speed": 10,
-    "audio_in": null,
-    "audio_out": null,
+    "audio_in": "0: Microsoft \uc0ac\uc6b4\ub4dc \ub9e4\ud37c - Input",
+    "audio_out": "6: Microsoft \uc0ac\uc6b4\ub4dc \ub9e4\ud37c - Output",
     "theme": "light",
-    "lang": "ko"
+    "lang": "ko",
+    "max_freq": 3000,
+    "colormap": "magma",
+    "drange": 60.0,
+    "enable_beeps": true,
+    "start_beep": "250:400:250",
+    "end_beep": "250:400:250",
+    "log_timestamp": true,
+    "log_font_size": 11
 }

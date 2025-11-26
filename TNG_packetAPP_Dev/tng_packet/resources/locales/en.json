@@ -1,22 +1,18 @@
 {
     "menu_file": "File", "menu_settings": "Settings...", "menu_exit": "Exit",
-    "menu_view": "View", "menu_help": "Help", "menu_show_wf": "Show Waterfall",
-    "lbl_spectrum": "SPECTRUM SCOPE", "lbl_waterfall": "WATERFALL HISTORY",
-    "grp_activity": "Band Activity", "grp_rx": "RX Frequency",
-    "lbl_config": "MPDA Config:", "lbl_to": "To:", "lbl_msg": "Msg:",
-    "btn_tx": "Enable TX", "btn_halt": "Halt TX", "btn_tune": "Tune", "btn_stop_tune": "STOP TUNE",
-    "lbl_call": "My Callsign:", "lbl_grid": "My Grid:", "lbl_theme": "Theme:", "lbl_lang": "Language:",
-    "lbl_in": "Input Device:", "lbl_out": "Output Device:",
-    "lbl_maxf": "Max Freq (Hz):", "lbl_cmap": "Colormap:", "lbl_drange": "Dynamic Range (dB):",
-    "lbl_beeps": "Enable Beeps:", "lbl_start_beep": "Start Beep:", "lbl_end_beep": "End Beep:",
-    "lbl_log_ts": "Show Timestamp", "lbl_log_font": "Font Size:", "btn_clear_log": "Clear Log",
-    
-    "tab_gen": "General", "tab_audio": "Audio", "tab_trans": "Transmit",
-    "tab_recv": "Receive", "tab_log": "Log", "tab_macro": "Macro",
-    
-    "grp_station": "Station Details", "grp_ui": "User Interface", "grp_audio_dev": "Audio Devices",
-    
-    "sub_mpda": "MPDA", "sub_chirp": "TNG_Chirp",
-    "sub_wf": "Waterfall", "sub_spec": "Spectrum Scope",
-    "sub_tx_macro": "TX Macros", "sub_email": "Auto Email"
+    "menu_view": "View", "menu_help": "Help", "grp_station": "Station Details",
+    "lbl_call": "Callsign:", "lbl_grid": "Grid:", "grp_ui": "Interface",
+    "lbl_lang": "Language:", "grp_audio_dev": "Audio Devices",
+    "lbl_in": "Input:", "lbl_out": "Output:", "tab_gen": "General",
+    "tab_audio": "Audio", "tab_trans": "Transmit", "tab_recv": "Receive",
+    "tab_log": "Log", "tab_macro": "Macros", "sub_mpda": "MPDA",
+    "sub_chirp": "Chirp", "sub_wf": "Waterfall", "sub_spec": "Spectrum",
+    "lbl_beeps": "Enable TX Beeps", "lbl_start_beep": "Start Beep:",
+    "lbl_end_beep": "End Beep:", "lbl_log_ts": "Show Timestamp",
+    "lbl_log_font": "Font Size:", "btn_clear_log": "Clear Log",
+    "lbl_wf_speed": "Scroll Speed:", "lbl_cmap": "Colormap:",
+    "lbl_maxf": "Max Freq (Hz):", "lbl_drange": "Dynamic Range (dB):",
+    "lbl_smooth": "Smoothing:", "lbl_spec_gain": "Gain:",
+    "lbl_ref_lvl": "Ref Level (dB):", "lbl_line_width": "Line Width:",
+    "lbl_fill": "Fill Spectrum", "sub_tx_macro": "TX Macros", "sub_email": "Email"
 }

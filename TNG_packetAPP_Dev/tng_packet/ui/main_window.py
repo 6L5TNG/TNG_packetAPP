@@ -1,137 +1,129 @@
 from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
-                             QLabel, QPushButton, QComboBox, QTextEdit, QSplitter, QFrame, QApplication)
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QAction
-import numpy as np
-import sounddevice as sd
+                             QLabel, QPushButton, QComboBox, QTextEdit, QSplitter, QFrame, QApplication, QSlider, QGridLayout, QLineEdit)
+from PyQt6.QtCore import Qt, QTimer, QTime
 from tng_packet.core.theme_manager import ThemeManager
 from tng_packet.ui.settings_dialog import SettingsDialog
 from tng_packet.core.settings import save_settings
 from tng_packet.core.i18n import Translator
-from tng_packet.ui.wideband_window import WidebandWindow
+from tng_packet.ui.visual_widget import VisualWidget
 
 class MainWindow(QMainWindow):
     def __init__(self, settings):
         super().__init__()
         self.settings = settings
-        lang = self.settings.get('lang', 'en')
-        Translator.load(lang)
-        self.wide_window = None
-        self.tune_stream = None
-        self.is_tuning = False
-        self.resize(900, 600)
+        self.settings['theme'] = 'dark' # Force Dark Mode
+        Translator.load(self.settings.get('lang', 'en'))
+        self.resize(1280, 800)
+        self.timer = QTimer(self); self.timer.timeout.connect(self.update_status); self.timer.start(1000)
+        self.is_tx_enabled = False
         self.init_ui()
 
     def init_ui(self):
         self.setWindowTitle(f"TNG_PacketAPP - MPDA v4.1.0 [{self.settings.get('callsign', 'NOCALL')}]")
         if self.centralWidget(): self.centralWidget().deleteLater()
-        central_widget = QWidget(); self.setCentralWidget(central_widget)
-        main_layout = QVBoxLayout(central_widget); main_layout.setContentsMargins(2, 2, 2, 2)
-
-        # Menu Bar
-        self.menuBar().clear(); menubar = self.menuBar()
-        file_menu = menubar.addMenu(Translator.tr("menu_file"))
-        settings_action = QAction(Translator.tr("menu_settings"), self); settings_action.triggered.connect(self.open_settings); file_menu.addAction(settings_action)
-        exit_action = QAction(Translator.tr("menu_exit"), self); exit_action.triggered.connect(self.close); file_menu.addAction(exit_action)
+        central = QWidget(); self.setCentralWidget(central)
+        main_layout = QVBoxLayout(central)
+        main_layout.setContentsMargins(0,0,0,0); main_layout.setSpacing(0)
         
-        view_menu = menubar.addMenu(Translator.tr("menu_view"))
-        wf_action = QAction(Translator.tr("menu_show_wf"), self); wf_action.triggered.connect(self.toggle_waterfall); view_menu.addAction(wf_action)
-        help_menu = menubar.addMenu(Translator.tr("menu_help")); help_menu.addAction('About')
-
-        # Main Area
-        mid_splitter = QSplitter(Qt.Orientation.Horizontal)
-        left_cont = QWidget(); left_l = QVBoxLayout(left_cont); left_l.setContentsMargins(0,0,0,0)
-        left_l.addWidget(QLabel(Translator.tr("grp_activity"))); self.band_activity = QTextEdit(); self.band_activity.setReadOnly(True); left_l.addWidget(self.band_activity)
-        right_cont = QWidget(); right_l = QVBoxLayout(right_cont); right_l.setContentsMargins(0,0,0,0)
-        right_l.addWidget(QLabel(Translator.tr("grp_rx"))); self.rx_window = QTextEdit(); self.rx_window.setReadOnly(True); right_l.addWidget(self.rx_window)
-        mid_splitter.addWidget(left_cont); mid_splitter.addWidget(right_cont); mid_splitter.setStretchFactor(0, 1); mid_splitter.setStretchFactor(1, 2)
-        main_layout.addWidget(mid_splitter, stretch=4)
-
-        # Bottom Controls
-        bottom_frame = QFrame(); bottom_layout = QHBoxLayout(bottom_frame)
-        settings_group = QFrame(); settings_layout = QVBoxLayout(settings_group)
-        self.track_combo = QComboBox(); self.track_combo.addItems(["4 Tracks", "8 Tracks", "1 Track"])
-        self.speed_combo = QComboBox(); self.speed_combo.addItems(["10 Hz", "5 Hz", "15 Hz"])
-        settings_layout.addWidget(QLabel(Translator.tr("lbl_config"))); settings_layout.addWidget(self.track_combo); settings_layout.addWidget(self.speed_combo); settings_layout.addStretch()
-        bottom_layout.addWidget(settings_group, stretch=1)
-
-        tx_group = QVBoxLayout()
-        call_layout = QHBoxLayout()
-        self.dx_call = QTextEdit(); self.dx_call.setFixedHeight(30); self.msg_input = QTextEdit(); self.msg_input.setFixedHeight(30)
-        call_layout.addWidget(QLabel(Translator.tr("lbl_to"))); call_layout.addWidget(self.dx_call); call_layout.addWidget(QLabel(Translator.tr("lbl_msg"))); call_layout.addWidget(self.msg_input)
+        self.splitter = QSplitter(Qt.Orientation.Horizontal)
         
-        self.btn_tx = QPushButton(Translator.tr("btn_tx")); self.btn_tx.setFixedHeight(40); self.btn_tx.setStyleSheet("background-color: #d32f2f; color: white; font-weight: bold;")
-        self.btn_halt = QPushButton(Translator.tr("btn_halt")); self.btn_halt.setFixedHeight(40)
-        self.btn_tune = QPushButton(Translator.tr("btn_tune")); self.btn_tune.setFixedHeight(40); self.btn_tune.clicked.connect(self.toggle_tune)
+        # LEFT PANEL
+        left_panel = QFrame(); left_layout = QVBoxLayout(left_panel)
+        left_layout.setContentsMargins(10, 10, 10, 5)
         
-        tx_group.addLayout(call_layout)
-        btn_layout = QHBoxLayout(); 
-        btn_layout.addWidget(self.btn_tx); btn_layout.addWidget(self.btn_halt); btn_layout.addWidget(self.btn_tune)
-        tx_group.addLayout(btn_layout)
-        bottom_layout.addLayout(tx_group, stretch=4)
-        main_layout.addWidget(bottom_frame, stretch=1)
+        # Header
+        self.top_qso = QFrame(); qso_layout = QGridLayout(self.top_qso); qso_layout.setContentsMargins(5,5,5,5)
+        self.txt_dx_call = QLineEdit(); self.txt_dx_call.setPlaceholderText("DX CALL")
+        self.txt_rst_s = QLineEdit("599"); self.txt_rst_s.setFixedWidth(60)
+        self.track_combo = QComboBox(); self.track_combo.addItems(["4 Tracks", "8 Tracks"])
+        qso_layout.addWidget(QLabel("DX Call:"), 0, 0); qso_layout.addWidget(self.txt_dx_call, 0, 1)
+        qso_layout.addWidget(QLabel("RST:"), 0, 2); qso_layout.addWidget(self.txt_rst_s, 0, 3)
+        qso_layout.addWidget(self.track_combo, 0, 4)
+        left_layout.addWidget(self.top_qso)
+        
+        # TX Input
+        self.msg_input = QTextEdit(); self.msg_input.setPlaceholderText("Type Message...")
+        left_layout.addWidget(self.msg_input, stretch=3)
+        
+        # Controls
+        self.ctrl_frame = QFrame(); ctrl_layout = QGridLayout(self.ctrl_frame)
+        self.btn_tx = QPushButton("Enable TX"); self.btn_tx.setCheckable(True); self.btn_tx.setFixedHeight(50); self.btn_tx.clicked.connect(self.on_tx_clicked)
+        self.btn_halt = QPushButton("HALT"); self.btn_halt.setFixedHeight(50); self.btn_halt.clicked.connect(self.on_halt_clicked)
+        self.btn_tune = QPushButton("TUNE"); self.btn_tune.setCheckable(True); self.btn_tune.setFixedHeight(50); self.btn_tune.clicked.connect(self.on_tune_clicked)
+        self.slider_pwr = QSlider(Qt.Orientation.Horizontal); self.slider_pwr.setRange(0, 100); self.slider_pwr.setValue(int(self.settings.get('tx_power', 50)))
+        self.lbl_pwr = QLabel(f"PWR: {self.slider_pwr.value()}%"); self.slider_pwr.valueChanged.connect(lambda v: [self.lbl_pwr.setText(f"PWR: {v}%"), self.settings.update({'tx_power': v})])
+        
+        ctrl_layout.addWidget(self.btn_tx, 0, 0, 1, 2)
+        ctrl_layout.addWidget(self.btn_tune, 0, 2)
+        ctrl_layout.addWidget(self.btn_halt, 0, 3)
+        ctrl_layout.addWidget(self.lbl_pwr, 1, 0)
+        ctrl_layout.addWidget(self.slider_pwr, 1, 1, 1, 3)
+        left_layout.addWidget(self.ctrl_frame)
+        
+        # Log
+        self.log_view = QTextEdit(); self.log_view.setReadOnly(True)
+        left_layout.addWidget(self.log_view, stretch=3)
+        self.status_bar = QLabel("Initializing..."); self.status_bar.setAlignment(Qt.AlignmentFlag.AlignCenter); self.status_bar.setFixedHeight(25)
+        left_layout.addWidget(self.status_bar)
+        
+        # RIGHT PANEL
+        right_panel = QFrame(); right_layout = QVBoxLayout(right_panel)
+        right_layout.setContentsMargins(0, 0, 0, 0); right_layout.setSpacing(0)
+        self.rx_text = QTextEdit(); self.rx_text.setReadOnly(True); self.rx_text.setPlaceholderText("RX Stream...")
+        right_layout.addWidget(self.rx_text, stretch=3)
+        self.visuals = VisualWidget(self.settings)
+        right_layout.addWidget(self.visuals, stretch=2)
+        
+        self.splitter.addWidget(left_panel); self.splitter.addWidget(right_panel)
+        self.splitter.setStretchFactor(0, 3); self.splitter.setStretchFactor(1, 4)
+        main_layout.addWidget(self.splitter)
+        
+        self._create_menu()
+        ThemeManager.apply_theme(QApplication.instance(), self)
+        self.visuals.start()
 
-        ThemeManager.apply_theme(QApplication.instance(), self, self.settings.get('theme', 'light'))
+    def apply_style(self):
+        # This method is called by ThemeManager to apply window-specific styles
+        self.setStyleSheet("""
+            QMainWindow { background-color: #2b2b2b; }
+            QLabel { color: #eee; font-size: 13px; }
+            QLineEdit, QTextEdit, QComboBox { background-color: #333; color: #eee; border: 1px solid #555; selection-background-color: #0078d7; }
+            QSplitter::handle { background-color: #444; }
+            QPushButton { background-color: #444; color: white; border: 1px solid #555; border-radius: 3px; font-weight: bold; }
+            QPushButton:hover { background-color: #555; }
+            QPushButton:checked#btnTx { background-color: #d32f2f; border-color: #b71c1c; }
+            QPushButton:checked#btnTune { background-color: #f57c00; border-color: #e65100; }
+            QLabel#statusBar { background-color: #222; color: #aaa; }
+        """)
+        self.top_qso.setStyleSheet("")
+        self.ctrl_frame.setStyleSheet("")
 
-        if self.wide_window is None:
-            self.wide_window = WidebandWindow(self.settings)
-        self.wide_window.show()
+    def _create_menu(self):
+        mb = self.menuBar()
+        mb.clear() # FIX: Remove duplicates
+        f = mb.addMenu(Translator.tr("menu_file"))
+        f.addAction(Translator.tr("menu_settings"), self.open_settings)
+        f.addAction(Translator.tr("menu_exit"), self.close)
+        mb.addMenu(Translator.tr("menu_view"))
+        mb.addMenu(Translator.tr("menu_help"))
 
-    def toggle_tune(self):
-        if self.is_tuning:
-            # Stop Tune
-            if self.tune_stream:
-                self.tune_stream.stop()
-                self.tune_stream.close()
-                self.tune_stream = None
-            self.is_tuning = False
-            self.btn_tune.setText(Translator.tr("btn_tune"))
-            self.btn_tune.setStyleSheet("")
-            # Re-apply theme to reset button style if needed
-        else:
-            # Start Tune
-            try:
-                # Simple callback for sine wave
-                fs = 44100
-                self.tune_idx = 0
-                def tune_callback(outdata, frames, time, status):
-                    t = (np.arange(frames) + self.tune_idx) / fs
-                    t = t.reshape(-1, 1)
-                    outdata[:] = 0.5 * np.sin(2 * np.pi * 1000 * t)
-                    self.tune_idx += frames
-                
-                # Get Output Device ID
-                out_str = self.settings.get('audio_out')
-                dev_idx = None
-                if out_str and "No" not in out_str:
-                     dev_idx = int(out_str.split(':')[0])
-
-                self.tune_stream = sd.OutputStream(device=dev_idx, channels=1, samplerate=fs, callback=tune_callback)
-                self.tune_stream.start()
-                self.is_tuning = True
-                self.btn_tune.setText(Translator.tr("btn_stop_tune"))
-                self.btn_tune.setStyleSheet("background-color: red; color: white; font-weight: bold;")
-            except Exception as e:
-                print(f"Tune Error: {e}")
+    def on_tx_clicked(self, checked):
+        if checked: self.btn_tx.setText("TX ENABLED"); self.is_tx_enabled = True; self.btn_tune.setChecked(False)
+        else: self.btn_tx.setText("Enable TX"); self.is_tx_enabled = False
+    def on_halt_clicked(self): self.btn_tx.setChecked(False); self.btn_tx.setText("Enable TX"); self.btn_tune.setChecked(False); self.is_tx_enabled = False
+    def on_tune_clicked(self, checked): 
+        if checked and self.btn_tx.isChecked(): self.btn_tx.setChecked(False); self.btn_tx.setText("Enable TX")
+    def update_status(self): self.status_bar.setText(f"UTC: {QTime.currentTime().toString('HH:mm:ss')} | Mode: MPDA | Status: Ready")
 
     def open_settings(self):
         dlg = SettingsDialog(self, self.settings)
         if dlg.exec():
-            new_settings = dlg.get_settings()
-            lang_changed = (new_settings.get('lang') != self.settings.get('lang'))
-            self.settings.update(new_settings)
+            new_s = dlg.get_settings()
+            lang_changed = (new_s.get('lang') != self.settings.get('lang'))
+            self.settings.update(new_s)
             save_settings(self.settings)
             if lang_changed: Translator.load(self.settings.get('lang', 'en')); self.init_ui()
-            else: ThemeManager.apply_theme(QApplication.instance(), self, self.settings.get('theme', 'light'))
-            if self.wide_window: self.wide_window.update_style()
-
-    def toggle_waterfall(self):
-        if self.wide_window is None:
-            self.wide_window = WidebandWindow(self.settings)
-        if self.wide_window.isVisible(): self.wide_window.hide()
-        else: self.wide_window.show(); self.wide_window.activateWindow()
-
-    def closeEvent(self, event):
-        if self.wide_window: self.wide_window.close()
-        if self.tune_stream: self.tune_stream.close()
-        super().closeEvent(event)
+            else: ThemeManager.apply_theme(QApplication.instance(), self)
+            self.visuals.refresh_settings()
+    
+    def closeEvent(self, event): self.visuals.stop(); save_settings(self.settings); super().closeEvent(event)

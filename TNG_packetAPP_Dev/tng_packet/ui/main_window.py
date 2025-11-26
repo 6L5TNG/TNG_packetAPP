@@ -2,6 +2,8 @@ from PyQt6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                              QLabel, QPushButton, QComboBox, QTextEdit, QSplitter, QFrame, QApplication)
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QAction
+import numpy as np
+import sounddevice as sd
 from tng_packet.core.theme_manager import ThemeManager
 from tng_packet.ui.settings_dialog import SettingsDialog
 from tng_packet.core.settings import save_settings
@@ -15,6 +17,8 @@ class MainWindow(QMainWindow):
         lang = self.settings.get('lang', 'en')
         Translator.load(lang)
         self.wide_window = None
+        self.tune_stream = None
+        self.is_tuning = False
         self.resize(900, 600)
         self.init_ui()
 
@@ -32,17 +36,14 @@ class MainWindow(QMainWindow):
         
         view_menu = menubar.addMenu(Translator.tr("menu_view"))
         wf_action = QAction(Translator.tr("menu_show_wf"), self); wf_action.triggered.connect(self.toggle_waterfall); view_menu.addAction(wf_action)
-        
         help_menu = menubar.addMenu(Translator.tr("menu_help")); help_menu.addAction('About')
 
-        # Main Area: Splitter (Band Activity | RX)
+        # Main Area
         mid_splitter = QSplitter(Qt.Orientation.Horizontal)
         left_cont = QWidget(); left_l = QVBoxLayout(left_cont); left_l.setContentsMargins(0,0,0,0)
         left_l.addWidget(QLabel(Translator.tr("grp_activity"))); self.band_activity = QTextEdit(); self.band_activity.setReadOnly(True); left_l.addWidget(self.band_activity)
-        
         right_cont = QWidget(); right_l = QVBoxLayout(right_cont); right_l.setContentsMargins(0,0,0,0)
         right_l.addWidget(QLabel(Translator.tr("grp_rx"))); self.rx_window = QTextEdit(); self.rx_window.setReadOnly(True); right_l.addWidget(self.rx_window)
-        
         mid_splitter.addWidget(left_cont); mid_splitter.addWidget(right_cont); mid_splitter.setStretchFactor(0, 1); mid_splitter.setStretchFactor(1, 2)
         main_layout.addWidget(mid_splitter, stretch=4)
 
@@ -58,14 +59,60 @@ class MainWindow(QMainWindow):
         call_layout = QHBoxLayout()
         self.dx_call = QTextEdit(); self.dx_call.setFixedHeight(30); self.msg_input = QTextEdit(); self.msg_input.setFixedHeight(30)
         call_layout.addWidget(QLabel(Translator.tr("lbl_to"))); call_layout.addWidget(self.dx_call); call_layout.addWidget(QLabel(Translator.tr("lbl_msg"))); call_layout.addWidget(self.msg_input)
+        
         self.btn_tx = QPushButton(Translator.tr("btn_tx")); self.btn_tx.setFixedHeight(40); self.btn_tx.setStyleSheet("background-color: #d32f2f; color: white; font-weight: bold;")
         self.btn_halt = QPushButton(Translator.tr("btn_halt")); self.btn_halt.setFixedHeight(40)
+        self.btn_tune = QPushButton(Translator.tr("btn_tune")); self.btn_tune.setFixedHeight(40); self.btn_tune.clicked.connect(self.toggle_tune)
+        
         tx_group.addLayout(call_layout)
-        btn_layout = QHBoxLayout(); btn_layout.addWidget(self.btn_tx); btn_layout.addWidget(self.btn_halt); tx_group.addLayout(btn_layout)
+        btn_layout = QHBoxLayout(); 
+        btn_layout.addWidget(self.btn_tx); btn_layout.addWidget(self.btn_halt); btn_layout.addWidget(self.btn_tune)
+        tx_group.addLayout(btn_layout)
         bottom_layout.addLayout(tx_group, stretch=4)
         main_layout.addWidget(bottom_frame, stretch=1)
 
         ThemeManager.apply_theme(QApplication.instance(), self, self.settings.get('theme', 'light'))
+
+        if self.wide_window is None:
+            self.wide_window = WidebandWindow(self.settings)
+        self.wide_window.show()
+
+    def toggle_tune(self):
+        if self.is_tuning:
+            # Stop Tune
+            if self.tune_stream:
+                self.tune_stream.stop()
+                self.tune_stream.close()
+                self.tune_stream = None
+            self.is_tuning = False
+            self.btn_tune.setText(Translator.tr("btn_tune"))
+            self.btn_tune.setStyleSheet("")
+            # Re-apply theme to reset button style if needed
+        else:
+            # Start Tune
+            try:
+                # Simple callback for sine wave
+                fs = 44100
+                self.tune_idx = 0
+                def tune_callback(outdata, frames, time, status):
+                    t = (np.arange(frames) + self.tune_idx) / fs
+                    t = t.reshape(-1, 1)
+                    outdata[:] = 0.5 * np.sin(2 * np.pi * 1000 * t)
+                    self.tune_idx += frames
+                
+                # Get Output Device ID
+                out_str = self.settings.get('audio_out')
+                dev_idx = None
+                if out_str and "No" not in out_str:
+                     dev_idx = int(out_str.split(':')[0])
+
+                self.tune_stream = sd.OutputStream(device=dev_idx, channels=1, samplerate=fs, callback=tune_callback)
+                self.tune_stream.start()
+                self.is_tuning = True
+                self.btn_tune.setText(Translator.tr("btn_stop_tune"))
+                self.btn_tune.setStyleSheet("background-color: red; color: white; font-weight: bold;")
+            except Exception as e:
+                print(f"Tune Error: {e}")
 
     def open_settings(self):
         dlg = SettingsDialog(self, self.settings)
@@ -81,12 +128,10 @@ class MainWindow(QMainWindow):
     def toggle_waterfall(self):
         if self.wide_window is None:
             self.wide_window = WidebandWindow(self.settings)
-        
-        if self.wide_window.isVisible():
-            self.wide_window.hide()
-        else:
-            self.wide_window.show()
+        if self.wide_window.isVisible(): self.wide_window.hide()
+        else: self.wide_window.show(); self.wide_window.activateWindow()
 
     def closeEvent(self, event):
         if self.wide_window: self.wide_window.close()
+        if self.tune_stream: self.tune_stream.close()
         super().closeEvent(event)

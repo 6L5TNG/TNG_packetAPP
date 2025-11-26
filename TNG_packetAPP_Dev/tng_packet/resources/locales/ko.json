@@ -4,7 +4,7 @@
     "lbl_spectrum": "스펙트럼 스코프", "lbl_waterfall": "워터폴 히스토리",
     "grp_activity": "대역 활동 (Band Activity)", "grp_rx": "수신 메시지 (RX)",
     "lbl_config": "MPDA 설정:", "lbl_to": "수신국:", "lbl_msg": "메시지:",
-    "btn_tx": "송신 시작 (TX)", "btn_halt": "송신 중단",
+    "btn_tx": "송신 시작 (TX)", "btn_halt": "송신 중단", "btn_tune": "Tune (튜닝)", "btn_stop_tune": "STOP (정지)",
     "lbl_call": "나의 호출부호:", "lbl_grid": "그리드 로케이터:", "lbl_theme": "테마:", "lbl_lang": "언어:",
     "lbl_in": "입력 장치 (마이크):", "lbl_out": "출력 장치 (스피커):",
     "lbl_maxf": "최대 주파수 (Hz):", "lbl_cmap": "컬러맵:", "lbl_drange": "감도 범위 (dB):",
@@ -14,7 +14,7 @@
     "tab_gen": "일반", "tab_audio": "오디오", "tab_trans": "송신 (TX)",
     "tab_recv": "수신 (RX)", "tab_log": "로그", "tab_macro": "매크로",
     
-    "grp_station": "국 정보 (Station)", "grp_ui": "사용자 인터페이스", "grp_audio_dev": "오디오 장치 설정",
+    "grp_station": "국 정보 (Station)", "grp_ui": "사용자 인터페이스", "grp_audio_dev": "오디오 장치 설정 (MME)",
     
     "sub_mpda": "MPDA 프로토콜", "sub_chirp": "TNG_Chirp (준비중)",
     "sub_wf": "워터폴 설정", "sub_spec": "스펙트럼 스코프",

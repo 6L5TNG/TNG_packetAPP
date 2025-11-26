@@ -4,7 +4,7 @@
     "lbl_spectrum": "スペクトラムスコープ", "lbl_waterfall": "ウォーターフォール履歴",
     "grp_activity": "バンド活動", "grp_rx": "受信メッセージ",
     "lbl_config": "MPDA 設定:", "lbl_to": "宛先:", "lbl_msg": "メッセージ:",
-    "btn_tx": "送信開始", "btn_halt": "送信停止",
+    "btn_tx": "送信開始", "btn_halt": "送信停止", "btn_tune": "Tune (調整)", "btn_stop_tune": "STOP (停止)",
     "lbl_call": "コールサイン:", "lbl_grid": "グリッド:", "lbl_theme": "テーマ:", "lbl_lang": "言語:",
     "lbl_in": "入力デバイス:", "lbl_out": "出力デバイス:",
     "lbl_maxf": "最大周波数 (Hz):", "lbl_cmap": "カラーマップ:", "lbl_drange": "ダイナミックレンジ (dB):",
@@ -14,7 +14,7 @@
     "tab_gen": "一般", "tab_audio": "オーディオ", "tab_trans": "送信 (TX)",
     "tab_recv": "受信 (RX)", "tab_log": "ログ", "tab_macro": "マクロ",
     
-    "grp_station": "局情報", "grp_ui": "ユーザーインターフェース", "grp_audio_dev": "オーディオデバイス設定",
+    "grp_station": "局情報", "grp_ui": "ユーザーインターフェース", "grp_audio_dev": "オーディオデバイス設定 (MME)",
     
     "sub_mpda": "MPDA", "sub_chirp": "TNG_Chirp (WIP)",
     "sub_wf": "ウォーターフォール", "sub_spec": "スペクトラム",

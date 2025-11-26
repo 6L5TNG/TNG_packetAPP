@@ -4,7 +4,7 @@
     "lbl_spectrum": "SPECTRUM SCOPE", "lbl_waterfall": "WATERFALL HISTORY",
     "grp_activity": "Band Activity", "grp_rx": "RX Frequency",
     "lbl_config": "MPDA Config:", "lbl_to": "To:", "lbl_msg": "Msg:",
-    "btn_tx": "Enable TX", "btn_halt": "Halt TX",
+    "btn_tx": "Enable TX", "btn_halt": "Halt TX", "btn_tune": "Tune", "btn_stop_tune": "STOP TUNE",
     "lbl_call": "My Callsign:", "lbl_grid": "My Grid:", "lbl_theme": "Theme:", "lbl_lang": "Language:",
     "lbl_in": "Input Device:", "lbl_out": "Output Device:",
     "lbl_maxf": "Max Freq (Hz):", "lbl_cmap": "Colormap:", "lbl_drange": "Dynamic Range (dB):",
